@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from middleware.logger import RequestLoggingMiddleware
+from middleware import configure_middleware
 import logging
 from lifespan import lifespan
 
@@ -16,14 +15,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+configure_middleware(app)
 
 @app.get("/healthcheck", tags=["Health Check"])
 def health_check():

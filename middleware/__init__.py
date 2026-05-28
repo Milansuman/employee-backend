@@ -1,0 +1,14 @@
+from fastapi import FastAPI
+
+from middleware.logger import RequestLoggingMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
+def configure_middleware(app: FastAPI):
+    app.add_middleware(RequestLoggingMiddleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
