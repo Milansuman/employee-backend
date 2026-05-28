@@ -1,6 +1,6 @@
 from asyncpg.exceptions import UniqueViolationError
 from fastapi.exceptions import HTTPException
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.employee import Employee
@@ -23,7 +23,7 @@ async def create(db: AsyncSession, name: str, email: str, phone: str, address: s
         )
 
         return employee
-    except UniqueViolationError:
+    except IntegrityError:
         raise HTTPException(
             status_code=400,
             detail="Duplicate email or phone number"
@@ -51,7 +51,7 @@ async def update(db: AsyncSession, id: int, name: str | None, email: str | None,
             phone=phone,
             address=address
         )
-    except UniqueViolationError:
+    except IntegrityError:
         raise HTTPException(
             status_code=400,
             detail="Duplicate email or phone number"
