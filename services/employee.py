@@ -1,4 +1,3 @@
-from asyncpg.exceptions import UniqueViolationError
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +8,8 @@ from repositories.employee import (
     delete_employee,
     get_all_employees,
     get_employee_by_id,
-    update_employee
+    update_employee,
+    search_employee_by_name
 )
 
 async def create(db: AsyncSession, name: str, email: str, phone: str, address: str) -> Employee:
@@ -70,3 +70,11 @@ async def delete(db: AsyncSession, id: int):
             status_code=404,
             detail="Employee does not exist"
         )
+
+async def search_by_name(db: AsyncSession, name: str) -> list[Employee]:
+    try:
+        employees = await search_employee_by_name(db, name)
+
+        return employees
+    except NoResultFound:
+        return []

@@ -16,11 +16,6 @@ async def all_employees(db: Annotated[AsyncSession, Depends(get_db)]):
     employees = await employee_service.get_all(db)
     return [employee.to_api_dict() for employee in employees]
 
-@employee_router.get("/{id}")
-async def get_employee(id: int, db: Annotated[AsyncSession, Depends(get_db)]):
-    employee = await employee_service.get_by_id(db, id)
-    return employee.to_api_dict()
-
 @employee_router.post("/")
 async def create_employee(body: CreateEmployee, db: Annotated[AsyncSession, Depends(get_db)]):
     employee = await employee_service.create(
@@ -31,6 +26,16 @@ async def create_employee(body: CreateEmployee, db: Annotated[AsyncSession, Depe
         address=body.address
     )
 
+    return employee.to_api_dict()
+
+@employee_router.get("/search")
+async def search_employee(name: str, db: Annotated[AsyncSession, Depends(get_db)]):
+    employees = await employee_service.search_by_name(db, name)
+    return [employee.to_api_dict() for employee in employees]
+
+@employee_router.get("/{id}")
+async def get_employee(id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    employee = await employee_service.get_by_id(db, id)
     return employee.to_api_dict()
 
 @employee_router.patch("/{id}")

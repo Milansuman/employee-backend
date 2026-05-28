@@ -58,3 +58,11 @@ async def delete_employee(db: AsyncSession, id: int):
 
     db.add(employee)
     await db.commit()
+
+async def search_employee_by_name(db: AsyncSession, name: str) -> list[Employee]:
+    employees = (await db.scalars(
+        select(Employee)
+            .where(Employee.name.ilike(f"%{name}%"))
+            .where(Employee.is_deleted.__eq__(False))
+    ))
+    return list(employees)
