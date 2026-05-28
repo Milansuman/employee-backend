@@ -1,11 +1,12 @@
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.expression import False_
 
 from models.employee import Employee
 
 async def get_all_employees(db: AsyncSession):
-    stmt = select(Employee).where(Employee.is_deleted.__eq__(False))
+    stmt = select(Employee).where(Employee.is_deleted == False)
     employees = await db.scalars(stmt)
 
     return list(employees)
@@ -13,8 +14,8 @@ async def get_all_employees(db: AsyncSession):
 async def get_employee_by_id(db: AsyncSession, id: int):
     employee = (await db.scalars(
         select(Employee)
-            .where(Employee.id.__eq__(id))
-            .where(Employee.is_deleted.__eq__(False))
+            .where(Employee.id == id)
+            .where(Employee.is_deleted == False)
     )).one()
 
     return employee
@@ -35,7 +36,7 @@ async def create_employee(db: AsyncSession, name: str, phone: str, email: str, a
 async def update_employee(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, address: str | None):
     employee = (await db.scalars(
         select(Employee)
-            .where(Employee.id.__eq__(id))
+            .where(Employee.id == id)
     )).one()
 
 
@@ -52,7 +53,7 @@ async def update_employee(db: AsyncSession, id: int, name: str | None, email: st
 async def delete_employee(db: AsyncSession, id: int):
     employee = (await db.scalars(
         select(Employee)
-            .where(Employee.id.__eq__(id))
+            .where(Employee.id == id)
     )).one()
     employee.is_deleted = True
 
@@ -63,6 +64,6 @@ async def search_employee_by_name(db: AsyncSession, name: str) -> list[Employee]
     employees = (await db.scalars(
         select(Employee)
             .where(Employee.name.ilike(f"%{name}%"))
-            .where(Employee.is_deleted.__eq__(False))
+            .where(Employee.is_deleted == False)
     ))
     return list(employees)

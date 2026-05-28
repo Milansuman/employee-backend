@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from middleware import configure_middleware
 import logging
+import uvicorn
 from lifespan import lifespan
 
 from routers import employee_router
@@ -22,3 +23,12 @@ def health_check():
     return "OK"
 
 app.include_router(employee_router)
+
+def main():
+    uvicorn.run(
+        app="main:app",
+        reload=True
+    )
+
+if __name__ == "__main__":
+    main()
