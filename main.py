@@ -84,6 +84,11 @@ async def update_employee(id: int, body: CreateEmployee, response: Response, db:
         return {
             "error": "Employee does not exist"
         }
+    except UniqueViolationError:
+        response.status_code = 400
+        return {
+            "error": "Email is already in use"
+        }
 
 
 @app.delete("/employee/{id}", tags=["Employee"])
