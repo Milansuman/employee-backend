@@ -1,17 +1,19 @@
+from datetime import date
+
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.base import Mapped
-from sqlalchemy import Boolean, Text
-from db import Base
+from sqlalchemy import Text, Date
+from models.entity import Entity
 
-class Employee(Base):
+class Employee(Entity):
+    __abstract__ = False
     __tablename__ = "employee"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
-    phone: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
+    phone: Mapped[str] = mapped_column(Text(), nullable=False)
     email: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
     address: Mapped[str] = mapped_column(Text(), nullable=True)
-    is_deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
+    date_of_birth: Mapped[date] = mapped_column(Date(), nullable=True)
 
     def to_api_dict(self) -> dict:
         return {
