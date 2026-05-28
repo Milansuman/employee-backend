@@ -9,6 +9,8 @@ from db import Base
 from env import env
 
 import models.employee # noqa: F401
+import models.address # noqa: F401
+import models.department # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

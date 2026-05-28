@@ -1,5 +1,7 @@
-from models import employee
+from models import employee, address, department
 
 __all__ = [
-    "employee"
+    "employee",
+    "address",
+    "department"
 ]
