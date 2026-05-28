@@ -1,15 +1,13 @@
-from typing import TypedDict
+from pydantic import BaseModel
 
-class Employee(TypedDict):
-    id: int | None
-    name: str | None
-    phone: str | None
-    email: str | None
-    address: str | None
-    is_deleted: bool | None
-
-class CreateEmployee(TypedDict):
+class CreateEmployee(BaseModel):
     name: str
-    phone: str
     email: str
+    phone: str
     address: str
+
+class UpdateEmployee(BaseModel):
+    name: str | None
+    email: str | None
+    phone: str | None
+    address: str | None

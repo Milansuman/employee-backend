@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.param_functions import Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
-from schema.employee import CreateEmployee
+from schema.employee import CreateEmployee, UpdateEmployee
 from db import get_db
 from services import employee_service
 
@@ -25,23 +25,23 @@ async def get_employee(id: int, db: Annotated[AsyncSession, Depends(get_db)]):
 async def create_employee(body: CreateEmployee, db: Annotated[AsyncSession, Depends(get_db)]):
     employee = await employee_service.create(
         db=db,
-        name=body["name"],
-        email=body["email"],
-        phone=body["phone"],
-        address=body["address"]
+        name=body.name,
+        email=body.email,
+        phone=body.phone,
+        address=body.address
     )
 
     return employee.to_api_dict()
 
 @employee_router.patch("/{id}")
-async def update_employee(id: int, body: CreateEmployee, db: Annotated[AsyncSession, Depends(get_db)]):
+async def update_employee(id: int, body: UpdateEmployee, db: Annotated[AsyncSession, Depends(get_db)]):
     employee = await employee_service.update(
         db=db,
         id=id,
-        name=body["name"],
-        email=body["email"],
-        phone=body["phone"],
-        address=body["address"]
+        name=body.name,
+        email=body.email,
+        phone=body.phone,
+        address=body.address
     )
 
     return employee.to_api_dict()
