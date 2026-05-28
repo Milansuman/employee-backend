@@ -8,7 +8,7 @@ class Employee(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
-    phone: Mapped[str] = mapped_column(Text(), nullable=False)
+    phone: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
     address: Mapped[str] = mapped_column(Text(), nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean(), default=False)

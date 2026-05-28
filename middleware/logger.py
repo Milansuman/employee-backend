@@ -1,6 +1,5 @@
 import logging
 import datetime
-from time import time
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response

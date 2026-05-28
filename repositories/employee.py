@@ -4,58 +4,57 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.employee import Employee
 
-async def get_all_employees(db: AsyncSession) -> list[dict]:
+async def get_all_employees(db: AsyncSession):
     stmt = select(Employee).where(Employee.is_deleted.__eq__(False))
     employees = await db.scalars(stmt)
 
-    return [employee.to_api_dict() for employee in employees]
+    return list(employees)
 
-async def get_employee_by_id(db: AsyncSession, id: int) -> dict:
+async def get_employee_by_id(db: AsyncSession, id: int):
     employee = (await db.scalars(
         select(Employee)
             .where(Employee.id.__eq__(id))
             .where(Employee.is_deleted.__eq__(False))
     )).one()
 
-    if employee is None:
-        raise Exception("Employee not found")
+    return employee
 
-    return employee.to_api_dict()
-
-async def create_employee(db: AsyncSession, employee: dict) -> dict:
-    created_employee = Employee(
-        name=employee["name"],
-        phone=employee["phone"],
-        email=employee["email"],
-        address=employee["address"],
+async def create_employee(db: AsyncSession, name: str, phone: str, email: str, address: str):
+    employee = Employee(
+        name=name,
+        phone=phone,
+        email=email,
+        address=address,
     )
 
-    db.add(created_employee)
+    db.add(employee)
     await db.commit()
 
-    return created_employee.to_api_dict()
+    return employee
 
-async def update_employee(db: AsyncSession, employee: dict):
-    employee_to_update = (await db.scalars(
-        select(Employee)
-            .where(Employee.id.__eq__(employee["id"]))
-    )).one()
-
-
-    employee_to_update.name = employee.get("name", employee_to_update.name)
-    employee_to_update.email = employee.get("email", employee_to_update.email)
-    employee_to_update.phone = employee.get("phone", employee_to_update.phone)
-    employee_to_update.address = employee.get("address", employee_to_update.address)
-
-    db.add(employee_to_update)
-    await db.commit()
-
-async def delete_employee(db: AsyncSession, id: int):
-    employee_to_delete = (await db.scalars(
+async def update_employee(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, address: str | None):
+    employee = (await db.scalars(
         select(Employee)
             .where(Employee.id.__eq__(id))
     )).one()
-    employee_to_delete.is_deleted = True
 
-    db.add(employee_to_delete)
+
+    employee.name = name if name is not None else employee.name
+    employee.email = email if email is not None else employee.email
+    employee.phone = phone if phone is not None else employee.phone
+    employee.address = address if address is not None else employee.address
+
+    db.add(employee)
+    await db.commit()
+
+    return employee
+
+async def delete_employee(db: AsyncSession, id: int):
+    employee = (await db.scalars(
+        select(Employee)
+            .where(Employee.id.__eq__(id))
+    )).one()
+    employee.is_deleted = True
+
+    db.add(employee)
     await db.commit()
