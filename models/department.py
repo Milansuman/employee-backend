@@ -21,7 +21,7 @@ class Department(Entity):
     __abstract__ = False
     __tablename__ = "department"
 
-    name: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     employees: Mapped[list["Employee"]] = relationship(Employee, back_populates="departments", secondary=employee_department)
 
     def to_api_dict(self) -> dict:
