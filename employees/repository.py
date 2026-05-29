@@ -91,7 +91,7 @@ async def get_employee_addresses(db: AsyncSession, id: int) -> list[Address]:
             .where(Employee.deleted_at.is_(None))
     )).one()
 
-    return employee.addresses
+    return [address for address in employee.addresses if address.deleted_at is None]
 
 async def add_employee_address(
     db: AsyncSession,
