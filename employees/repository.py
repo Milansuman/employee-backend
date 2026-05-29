@@ -1,13 +1,14 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from models.address import Address
 from models.employee import Employee
 
 async def get_all_employees(db: AsyncSession):
-    stmt = select(Employee).where(Employee.deleted_at == None)
+    stmt = select(Employee).where(Employee.deleted_at.is_(None))
     employees = await db.scalars(stmt)
 
     return list(employees)
@@ -69,15 +70,16 @@ async def search_employee_by_name(db: AsyncSession, name: str) -> list[Employee]
     employees = (await db.scalars(
         select(Employee)
             .where(Employee.name.ilike(f"%{name}%"))
-            .where(Employee.deleted_at == None)
+            .where(Employee.deleted_at.is_(None))
     ))
     return list(employees)
 
 async def get_employee_addresses(db: AsyncSession, id: int) -> list[Address]:
     employee = (await db.scalars(
         select(Employee)
+            .options(selectinload(Employee.addresses))
             .where(Employee.id == id)
-            .where(Employee.deleted_at == None)
+            .where(Employee.deleted_at.is_(None))
     )).one()
 
     return employee.addresses
@@ -116,7 +118,7 @@ async def update_employee_address(
         select(Address)
             .where(Address.id == address_id)
             .where(Address.employee_id == employee_id)
-            .where(Address.deleted_at == None)
+            .where(Address.deleted_at.is_(None))
     )).one()
 
     address.line1 = line1 if line1 is not None else address.line1
