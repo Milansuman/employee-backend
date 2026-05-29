@@ -30,4 +30,5 @@ class Employee(Entity):
             "name": self.name,
             "email": self.email,
             "phone": self.phone,
+            "date_of_birth": self.date_of_birth.isoformat()
         }

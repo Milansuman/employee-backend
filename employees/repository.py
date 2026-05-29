@@ -17,16 +17,23 @@ async def get_employee_by_id(db: AsyncSession, id: int):
     employee = (await db.scalars(
         select(Employee)
             .where(Employee.id == id)
-            .where(Employee.deleted_at == None)
+            .where(Employee.deleted_at.is_(None))
     )).one()
 
     return employee
 
-async def create_employee(db: AsyncSession, name: str, phone: str, email: str):
+async def create_employee(
+    db: AsyncSession,
+    name: str,
+    phone: str,
+    email: str,
+    date_of_birth: date
+):
     employee = Employee(
         name=name,
         phone=phone,
-        email=email
+        email=email,
+        date_of_birth=date_of_birth
     )
 
     db.add(employee)
@@ -39,7 +46,8 @@ async def update_employee(
     id: int,
     name: str | None,
     email: str | None,
-    phone: str | None
+    phone: str | None,
+    date_of_birth: date | None
 ):
     employee = (await db.scalars(
         select(Employee)
@@ -50,6 +58,7 @@ async def update_employee(
     employee.name = name if name is not None else employee.name
     employee.email = email if email is not None else employee.email
     employee.phone = phone if phone is not None else employee.phone
+    employee.date_of_birth = date_of_birth if date_of_birth is not None else employee.date_of_birth
 
     db.add(employee)
     await db.commit()

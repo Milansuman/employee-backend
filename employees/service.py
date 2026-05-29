@@ -1,6 +1,7 @@
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import date
 
 from models.employee import Employee
 from models.address import Address
@@ -17,13 +18,14 @@ from employees.repository import (
     remove_employee_address
 )
 
-async def create(db: AsyncSession, name: str, email: str, phone: str) -> Employee:
+async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str) -> Employee:
     try:
         employee = await create_employee(
             db=db,
             name=name,
             email=email,
-            phone=phone
+            phone=phone,
+            date_of_birth=date.fromisoformat(date_of_birth)
         )
 
         return employee
@@ -45,14 +47,15 @@ async def get_by_id(db: AsyncSession, id: int) -> Employee:
             detail="Employee does not exist"
         )
 
-async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None) -> Employee:
+async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None) -> Employee:
     try:
         return await update_employee(
             db=db,
             id=id,
             name=name,
             email=email,
-            phone=phone
+            phone=phone,
+            date_of_birth=date.fromisoformat(date_of_birth) if date_of_birth else None
         )
     except IntegrityError:
         raise HTTPException(

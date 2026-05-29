@@ -22,7 +22,8 @@ async def create_employee(body: CreateEmployee, db: Annotated[AsyncSession, Depe
         db=db,
         name=body.name,
         email=body.email,
-        phone=body.phone
+        phone=body.phone,
+        date_of_birth=body.dob
     )
 
     return employee.to_api_dict()
@@ -44,7 +45,8 @@ async def update_employee(id: int, body: UpdateEmployee, db: Annotated[AsyncSess
         id=id,
         name=body.name,
         email=body.email,
-        phone=body.phone
+        phone=body.phone,
+        date_of_birth=body.dob
     )
 
     return employee.to_api_dict()
