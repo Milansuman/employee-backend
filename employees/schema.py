@@ -42,10 +42,6 @@ class UpdateEmployeeAddress(BaseModel):
     postal_code: str | None = None
     country: str | None = None
 
-class LoginAttempt(BaseModel):
-    email: str
-    password: str
-
 class EmployeeResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True

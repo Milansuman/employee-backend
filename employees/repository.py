@@ -173,15 +173,3 @@ async def get_employee_departments(
     )).one()
 
     return employee.departments
-
-async def get_employee_by_email(
-    db: AsyncSession,
-    email: str
-) -> Employee:
-    employee = (await db.scalars(
-        select(Employee)
-            .where(Employee.email == email)
-            .where(Employee.deleted_at.is_(None))
-    )).one()
-
-    return employee

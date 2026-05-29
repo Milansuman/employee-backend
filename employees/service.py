@@ -2,7 +2,6 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
-from exceptions.exceptions import UnauthorizedException
 from models.department import Department
 from models.employee import Employee
 from models.address import Address
@@ -10,7 +9,6 @@ from employees.repository import (
     create_employee,
     delete_employee,
     get_all_employees,
-    get_employee_by_email,
     get_employee_by_id,
     update_employee,
     search_employee_by_name,
@@ -20,7 +18,7 @@ from employees.repository import (
     remove_employee_address
 )
 
-from auth.utils import hash_password, verify_password
+from auth.utils import hash_password
 
 from exceptions import (
     NotFoundException,
@@ -156,18 +154,3 @@ async def get_employee_departments(
         )
     except NoResultFound:
         raise NotFoundException("Employee not found")
-
-async def login(
-    db: AsyncSession,
-    email: str,
-    password: str
-) -> str:
-    try:
-        employee = await get_employee_by_email(db, email)
-
-        if not verify_password(password, employee.password_hash):
-            raise UnauthorizedException("Incorrect password for employee")
-
-        return employee.get_access_token()
-    except NoResultFound:
-        raise UnauthorizedException("Employee does not exist")

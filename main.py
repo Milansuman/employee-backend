@@ -5,7 +5,8 @@ import logging
 import uvicorn
 from lifespan import lifespan
 
-from employees.router import employee_router, employee_auth_router
+from auth.router import auth_router
+from employees.router import employee_router
 from departments.router import department_router
 
 logging.basicConfig(
@@ -25,7 +26,7 @@ configure_error_handlers(app)
 def health_check():
     return "OK"
 
-app.include_router(employee_auth_router)
+app.include_router(auth_router)
 app.include_router(employee_router)
 app.include_router(department_router)
 
