@@ -8,9 +8,10 @@ from models.entity import Entity
 from models.address import Address
 
 if TYPE_CHECKING:
-    from models.department import Department
+    from models.department import Department, employee_department
 else:
     Department = "Department"
+    employee_department = "employee_department"
 
 class Employee(Entity):
     __abstract__ = False
@@ -21,7 +22,7 @@ class Employee(Entity):
     email: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
     date_of_birth: Mapped[date] = mapped_column(Date(), nullable=True)
     addresses: Mapped[list["Address"]] = relationship(Address, back_populates="employee")
-    department: Mapped[list["Department"]] = relationship(Department, back_populates="employee")
+    departments: Mapped[list["Department"]] = relationship(Department, back_populates="employees", secondary=employee_department)
 
     def to_api_dict(self) -> dict:
         return {

@@ -4,7 +4,7 @@ import logging
 import uvicorn
 from lifespan import lifespan
 
-from routers import employee_router
+from employees.router import employee_router
 
 logging.basicConfig(
     level=logging.INFO
