@@ -6,6 +6,8 @@ import uvicorn
 from lifespan import lifespan
 
 from employees.router import employee_router
+from departments.router import department_router
+
 logging.basicConfig(
     level=logging.INFO
 )
@@ -24,7 +26,7 @@ def health_check():
     return "OK"
 
 app.include_router(employee_router)
-
+app.include_router(department_router)
 
 def main():
     uvicorn.run(
