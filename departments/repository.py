@@ -80,7 +80,13 @@ async def add_employee_to_department(
     employee_id: int,
     department_id: int
 ):
-    department = await get_department_by_id(db, department_id)
+    department = (await db.scalars(
+        select(Department)
+            .options(selectinload(Department.employees))
+            .where(Department.id == department_id)
+            .where(Department.deleted_at.is_(None))
+    )).one()
+
     employee = await get_employee_by_id(db, employee_id)
 
     department.employees.append(employee)
@@ -93,7 +99,13 @@ async def remove_employee_from_department(
     employee_id: int,
     department_id: int
 ):
-    department = await get_department_by_id(db, department_id)
+    department = (await db.scalars(
+        select(Department)
+            .options(selectinload(Department.employees))
+            .where(Department.id == department_id)
+            .where(Department.deleted_at.is_(None))
+    )).one()
+
     employee = await get_employee_by_id(db, employee_id)
 
     department.employees.remove(employee)

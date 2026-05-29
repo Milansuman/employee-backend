@@ -50,7 +50,7 @@ async def delete_department(id: int, db: AsyncSession = Depends(get_db)):
 
 @department_router.get("/{id}/employee", response_model=list[EmployeeResponse])
 async def get_department_employees(id: int, db: AsyncSession = Depends(get_db)):
-    return service.get_department_employees(
+    return await service.get_department_employees(
         db=db,
         id=id
     )
