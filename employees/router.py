@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi.param_functions import Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
+from departments.schema import DepartmentResponse
 from employees.schema import CreateEmployee, CreateEmployeeAddress, EmployeeAddressResponse, UpdateEmployee, UpdateEmployeeAddress, EmployeeResponse
 from db import get_db
 from employees import service as employee_service
@@ -99,4 +100,11 @@ async def delete_employee_address(employee_id: int, address_id: int, db: Annotat
         db=db,
         employee_id=employee_id,
         address_id=address_id
+    )
+
+@employee_router.get("/{employee_id}/department", response_model=list[DepartmentResponse])
+async def get_employee_departments(employee_id: int, db: AsyncSession = Depends(get_db)):
+    return await employee_service.get_employee_departments(
+        db=db,
+        employee_id=employee_id
     )

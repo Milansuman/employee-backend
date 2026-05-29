@@ -2,6 +2,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
+from models.department import Department
 from models.employee import Employee
 from models.address import Address
 from employees.repository import (
@@ -137,3 +138,15 @@ async def delete_address(
         )
     except NoResultFound:
         raise NotFoundException("Address entry does not exist for employee")
+
+async def get_employee_departments(
+    db: AsyncSession,
+    employee_id: int
+) -> list[Department]:
+    try:
+        return await get_employee_departments(
+            db=db,
+            employee_id=employee_id
+        )
+    except NoResultFound:
+        raise NotFoundException("Employee not found")

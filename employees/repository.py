@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.address import Address
+from models.department import Department
 from models.employee import Employee
 
 async def get_all_employees(db: AsyncSession):
@@ -155,3 +156,16 @@ async def remove_employee_address(
 
     db.add(address)
     await db.commit()
+
+async def get_employee_departments(
+    db: AsyncSession,
+    employee_id: int
+) -> list[Department]:
+    employee = (await db.scalars(
+        select(Employee)
+            .options(selectinload(Employee.departments))
+            .where(Employee.id == id)
+            .where(Employee.deleted_at.is_(None))
+    )).one()
+
+    return employee.departments
