@@ -20,7 +20,7 @@ class UpdateEmployee(BaseModel):
     name: str | None = None
     email: str | None = None
     phone: str | None = None
-    dob: Annotated[str, validate_date_format] | None = None
+    dob: Annotated[str, BeforeValidator(validate_date_format)] | None = None
 
 class CreateEmployeeAddress(BaseModel):
     line1: str
