@@ -1,4 +1,3 @@
-from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
@@ -18,6 +17,11 @@ from employees.repository import (
     remove_employee_address
 )
 
+from exceptions import (
+    NotFoundException,
+    ConflictException
+)
+
 async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str) -> Employee:
     try:
         employee = await create_employee(
@@ -30,10 +34,7 @@ async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_bi
 
         return employee
     except IntegrityError:
-        raise HTTPException(
-            status_code=400,
-            detail="Duplicate email or phone number"
-        )
+        raise ConflictException("Email or phone already exists")
 
 async def get_all(db: AsyncSession) -> list[Employee]:
     return await get_all_employees(db)
@@ -42,10 +43,7 @@ async def get_by_id(db: AsyncSession, id: int) -> Employee:
     try:
         return await get_employee_by_id(db, id)
     except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Employee does not exist"
-        )
+        raise NotFoundException("Employee does not exist")
 
 async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None) -> Employee:
     try:
@@ -58,24 +56,15 @@ async def update(db: AsyncSession, id: int, name: str | None, email: str | None,
             date_of_birth=date.fromisoformat(date_of_birth) if date_of_birth else None
         )
     except IntegrityError:
-        raise HTTPException(
-            status_code=400,
-            detail="Duplicate email or phone number"
-        )
+        raise ConflictException("Email or phone already exists")
     except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Employee does not exist"
-        )
+        raise NotFoundException("Employee does not exist")
 
 async def delete(db: AsyncSession, id: int):
     try:
         await delete_employee(db, id)
     except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Employee does not exist"
-        )
+        raise NotFoundException("Employee does not exist")
 
 async def search_by_name(db: AsyncSession, name: str) -> list[Employee]:
     try:
@@ -133,10 +122,7 @@ async def update_address(
 
         return address
     except NoResultFound:
-        raise HTTPException(
-            status_code=400,
-            detail="Address entry does not exist for employee"
-        )
+        raise NotFoundException("Address entry does not exist for employee")
 
 async def delete_address(
     db: AsyncSession,
@@ -150,7 +136,4 @@ async def delete_address(
             employee_id=employee_id
         )
     except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Address entry does not exist for employee"
-        )
+        raise NotFoundException("Address entry does not exist for employee")
