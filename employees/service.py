@@ -2,6 +2,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
+from exceptions.exceptions import UnauthorizedException
 from models.department import Department
 from models.employee import Employee
 from models.address import Address
@@ -9,6 +10,7 @@ from employees.repository import (
     create_employee,
     delete_employee,
     get_all_employees,
+    get_employee_by_email,
     get_employee_by_id,
     update_employee,
     search_employee_by_name,
@@ -18,19 +20,22 @@ from employees.repository import (
     remove_employee_address
 )
 
+from auth.utils import hash_password, verify_password
+
 from exceptions import (
     NotFoundException,
     ConflictException
 )
 
-async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str) -> Employee:
+async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str, password: str) -> Employee:
     try:
         employee = await create_employee(
             db=db,
             name=name,
             email=email,
             phone=phone,
-            date_of_birth=date.fromisoformat(date_of_birth)
+            date_of_birth=date.fromisoformat(date_of_birth),
+            password=hash_password(password)
         )
 
         return employee
@@ -46,7 +51,7 @@ async def get_by_id(db: AsyncSession, id: int) -> Employee:
     except NoResultFound:
         raise NotFoundException("Employee does not exist")
 
-async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None) -> Employee:
+async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None, password: str | None) -> Employee:
     try:
         return await update_employee(
             db=db,
@@ -54,7 +59,8 @@ async def update(db: AsyncSession, id: int, name: str | None, email: str | None,
             name=name,
             email=email,
             phone=phone,
-            date_of_birth=date.fromisoformat(date_of_birth) if date_of_birth else None
+            date_of_birth=date.fromisoformat(date_of_birth) if date_of_birth else None,
+            password=hash_password(password) if password else None
         )
     except IntegrityError:
         raise ConflictException("Email or phone already exists")
@@ -150,3 +156,18 @@ async def get_employee_departments(
         )
     except NoResultFound:
         raise NotFoundException("Employee not found")
+
+async def login(
+    db: AsyncSession,
+    email: str,
+    password: str
+) -> str:
+    try:
+        employee = await get_employee_by_email(db, email)
+
+        if not verify_password(password, employee.password_hash):
+            raise UnauthorizedException("Incorrect password for employee")
+
+        return employee.get_access_token()
+    except NoResultFound:
+        raise UnauthorizedException("Employee does not exist")

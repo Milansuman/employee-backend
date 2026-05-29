@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, PlainSerializer
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 from datetime import date
 
 def validate_date_format(date_string: str) -> str:
@@ -21,12 +21,14 @@ class CreateEmployee(BaseModel):
     email: str
     phone: str
     dob: dobString
+    password: str = Field(min_length=5)
 
 class UpdateEmployee(BaseModel):
     name: str | None = None
     email: str | None = None
     phone: str | None = None
     dob: dobString | None = None
+    password: str | None = None
 
 class CreateEmployeeAddress(BaseModel):
     line1: str
@@ -39,6 +41,10 @@ class UpdateEmployeeAddress(BaseModel):
     city: str | None = None
     postal_code: str | None = None
     country: str | None = None
+
+class LoginAttempt(BaseModel):
+    email: str
+    password: str
 
 class EmployeeResponse(BaseModel):
     model_config = ConfigDict(

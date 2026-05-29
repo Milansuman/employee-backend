@@ -1,14 +1,22 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from fastapi.param_functions import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from departments.schema import DepartmentResponse
-from employees.schema import CreateEmployee, CreateEmployeeAddress, EmployeeAddressResponse, UpdateEmployee, UpdateEmployeeAddress, EmployeeResponse
+from employees.schema import CreateEmployee, CreateEmployeeAddress, EmployeeAddressResponse, LoginAttempt, UpdateEmployee, UpdateEmployeeAddress, EmployeeResponse
 from db import get_db
 from employees import service as employee_service
 
+from auth.utils import verify_access_token
+
+employee_auth_router = APIRouter(
+    prefix="/auth",
+    tags=["Employee Authentication"]
+)
+
 employee_router = APIRouter(
     prefix="/employee",
-    tags=["Employee"]
+    tags=["Employee"],
+    dependencies=[Depends(verify_access_token)]
 )
 
 @employee_router.get("/all", response_model=list[EmployeeResponse])
@@ -23,7 +31,8 @@ async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_d
         name=body.name,
         email=body.email,
         phone=body.phone,
-        date_of_birth=body.dob
+        date_of_birth=body.dob,
+        password=body.password
     )
 
     return employee
@@ -32,6 +41,25 @@ async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_d
 async def search_employee(name: str, db: AsyncSession = Depends(get_db)):
     employees = await employee_service.search_by_name(db, name)
     return employees
+
+@employee_auth_router.post("/login")
+async def login(body: LoginAttempt, response: Response, db: AsyncSession = Depends(get_db)):
+    access_token = await employee_service.login(
+        db=db,
+        email=body.email,
+        password=body.password
+    )
+
+    response.set_cookie(
+        key="auth",
+        value=access_token,
+        httponly=True,
+        secure=False
+    )
+
+    return {
+        "detail": "success"
+    }
 
 @employee_router.get("/{id}", response_model=EmployeeResponse)
 async def get_employee(id: int, db: AsyncSession = Depends(get_db)):
@@ -46,7 +74,8 @@ async def update_employee(id: int, body: UpdateEmployee, db: AsyncSession = Depe
         name=body.name,
         email=body.email,
         phone=body.phone,
-        date_of_birth=body.dob
+        date_of_birth=body.dob,
+        password=body.password
     )
 
     return employee

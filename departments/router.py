@@ -6,9 +6,12 @@ from departments import service
 from departments.schema import CreateOrUpdateDepartment, DepartmentResponse
 from employees.schema import EmployeeResponse
 
+from auth.utils import verify_access_token
+
 department_router = APIRouter(
     prefix="/department",
-    tags=["Department"]
+    tags=["Department"],
+    dependencies=[Depends(verify_access_token)]
 )
 
 @department_router.get("/all", response_model=list[DepartmentResponse])

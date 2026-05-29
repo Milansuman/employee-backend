@@ -7,6 +7,9 @@ from sqlalchemy import Text, Date
 from models.entity import Entity
 from models.address import Address
 
+from env import env
+import jwt
+
 if TYPE_CHECKING:
     from models.department import Department, employee_department
 else:
@@ -33,3 +36,6 @@ class Employee(Entity):
             "phone": self.phone,
             "date_of_birth": self.date_of_birth.isoformat()
         }
+
+    def get_access_token(self) -> str:
+        return jwt.encode(self.to_api_dict(), env.JWT_SECRET, algorithm="HS256")

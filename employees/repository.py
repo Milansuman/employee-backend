@@ -28,13 +28,15 @@ async def create_employee(
     name: str,
     phone: str,
     email: str,
-    date_of_birth: date
+    date_of_birth: date,
+    password: str
 ):
     employee = Employee(
         name=name,
         phone=phone,
         email=email,
-        date_of_birth=date_of_birth
+        date_of_birth=date_of_birth,
+        password_hash=password
     )
 
     db.add(employee)
@@ -48,7 +50,8 @@ async def update_employee(
     name: str | None,
     email: str | None,
     phone: str | None,
-    date_of_birth: date | None
+    date_of_birth: date | None,
+    password: str | None
 ):
     employee = (await db.scalars(
         select(Employee)
@@ -60,6 +63,7 @@ async def update_employee(
     employee.email = email if email is not None else employee.email
     employee.phone = phone if phone is not None else employee.phone
     employee.date_of_birth = date_of_birth if date_of_birth is not None else employee.date_of_birth
+    employee.password_hash = password if password else employee.password_hash
 
     db.add(employee)
     await db.commit()
@@ -169,3 +173,15 @@ async def get_employee_departments(
     )).one()
 
     return employee.departments
+
+async def get_employee_by_email(
+    db: AsyncSession,
+    email: str
+) -> Employee:
+    employee = (await db.scalars(
+        select(Employee)
+            .where(Employee.email == email)
+            .where(Employee.deleted_at.is_(None))
+    )).one()
+
+    return employee
