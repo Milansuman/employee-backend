@@ -21,6 +21,7 @@ class Employee(Entity):
     phone: Mapped[str] = mapped_column(Text(), nullable=False)
     email: Mapped[str] = mapped_column(Text(), nullable=False, unique=True)
     date_of_birth: Mapped[date] = mapped_column(Date(), nullable=True)
+    password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     addresses: Mapped[list["Address"]] = relationship(Address, back_populates="employee")
     departments: Mapped[list["Department"]] = relationship(Department, back_populates="employees", secondary=employee_department)
 
