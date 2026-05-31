@@ -36,6 +36,3 @@ class Employee(Entity):
             "phone": self.phone,
             "date_of_birth": self.date_of_birth.isoformat()
         }
-
-    def get_access_token(self) -> str:
-        return jwt.encode(self.to_api_dict(), env.JWT_SECRET, algorithm="HS256")
