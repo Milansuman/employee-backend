@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import jwt
 from jwt.exceptions import DecodeError
@@ -49,7 +49,7 @@ async def refresh_tokens(
         access_claims = jwt.decode(access_token, env.JWT_SECRET, algorithms=[env.JWT_ALGORITHM])
         refresh_claims = jwt.decode(refresh_token, env.JWT_SECRET, algorithms=[env.JWT_ALGORITHM])
 
-        if refresh_claims["exp"] < datetime.now().timestamp():
+        if refresh_claims["exp"] < datetime.now(timezone.utc).timestamp():
             raise UnauthorizedException("Expired refresh token")
 
         if refresh_claims["claims"]["token"] != access_token:
