@@ -5,18 +5,7 @@ from datetime import date
 from models.department import Department
 from models.employee import Employee
 from models.address import Address
-from employees.repository import (
-    create_employee,
-    delete_employee,
-    get_all_employees,
-    get_employee_by_id,
-    update_employee,
-    search_employee_by_name,
-    get_employee_addresses,
-    add_employee_address,
-    update_employee_address,
-    remove_employee_address
-)
+from employees import repository
 
 from auth.utils import hash_password
 
@@ -27,7 +16,7 @@ from exceptions import (
 
 async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str, password: str) -> Employee:
     try:
-        employee = await create_employee(
+        employee = await repository.create_employee(
             db=db,
             name=name,
             email=email,
@@ -41,17 +30,17 @@ async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_bi
         raise ConflictException("Email or phone already exists")
 
 async def get_all(db: AsyncSession) -> list[Employee]:
-    return await get_all_employees(db)
+    return await repository.get_all_employees(db)
 
 async def get_by_id(db: AsyncSession, id: int) -> Employee:
     try:
-        return await get_employee_by_id(db, id)
+        return await repository.get_employee_by_id(db, id)
     except NoResultFound:
         raise NotFoundException("Employee does not exist")
 
 async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None, password: str | None) -> Employee:
     try:
-        return await update_employee(
+        return await repository.update_employee(
             db=db,
             id=id,
             name=name,
@@ -67,13 +56,13 @@ async def update(db: AsyncSession, id: int, name: str | None, email: str | None,
 
 async def delete(db: AsyncSession, id: int):
     try:
-        await delete_employee(db, id)
+        await repository.delete_employee(db, id)
     except NoResultFound:
         raise NotFoundException("Employee does not exist")
 
 async def search_by_name(db: AsyncSession, name: str) -> list[Employee]:
     try:
-        employees = await search_employee_by_name(db, name)
+        employees = await repository.search_employee_by_name(db, name)
 
         return employees
     except NoResultFound:
@@ -81,7 +70,7 @@ async def search_by_name(db: AsyncSession, name: str) -> list[Employee]:
 
 async def get_addresses(db: AsyncSession, employee_id: int) -> list[Address]:
     try:
-        addresses = await get_employee_addresses(db, employee_id)
+        addresses = await repository.get_employee_addresses(db, employee_id)
 
         return addresses
     except NoResultFound:
@@ -95,7 +84,7 @@ async def add_address(
     postal_code: str,
     country: str
 ) -> Address:
-    address = await add_employee_address(
+    address = await repository.add_employee_address(
         db=db,
         employee_id=employee_id,
         line1=line1,
@@ -115,7 +104,7 @@ async def update_address(
     country: str | None
 ) -> Address:
     try:
-        address = await update_employee_address(
+        address = await repository.update_employee_address(
             db=db,
             address_id=address_id,
             employee_id=employee_id,
@@ -135,7 +124,7 @@ async def delete_address(
     employee_id: int
 ):
     try:
-        await remove_employee_address(
+        await repository.remove_employee_address(
             db=db,
             address_id=address_id,
             employee_id=employee_id
@@ -148,7 +137,7 @@ async def get_employee_departments(
     employee_id: int
 ) -> list[Department]:
     try:
-        return await get_employee_departments(
+        return await repository.get_employee_departments(
             db=db,
             employee_id=employee_id
         )

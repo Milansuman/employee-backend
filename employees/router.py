@@ -79,7 +79,7 @@ async def get_employee_addresses(id: int, db: AsyncSession = Depends(get_db)):
 
 @employee_router.post("/{id}/address", response_model=EmployeeAddressResponse)
 async def add_employee_address(id: int, body: CreateEmployeeAddress, db: AsyncSession = Depends(get_db)):
-    address = await employee_service.add_employee_address(
+    address = await employee_service.add_address(
         db=db,
         employee_id=id,
         line1=body.line1,
@@ -92,7 +92,7 @@ async def add_employee_address(id: int, body: CreateEmployeeAddress, db: AsyncSe
 
 @employee_router.patch("/{employee_id}/address/{address_id}", response_model=EmployeeAddressResponse)
 async def update_employee_address(employee_id: int, address_id: int, body: UpdateEmployeeAddress, db: AsyncSession = Depends(get_db)):
-    address = await employee_service.update_employee_address(
+    address = await employee_service.update_address(
         db=db,
         employee_id=employee_id,
         address_id=address_id,
@@ -103,9 +103,9 @@ async def update_employee_address(employee_id: int, address_id: int, body: Updat
     )
     return address
 
-@employee_router.delete("/{employee_id}/address/{address_id}", response_model=EmployeeAddressResponse)
+@employee_router.delete("/{employee_id}/address/{address_id}")
 async def delete_employee_address(employee_id: int, address_id: int, db: AsyncSession = Depends(get_db)):
-    await employee_service.remove_employee_address(
+    await employee_service.delete_address(
         db=db,
         employee_id=employee_id,
         address_id=address_id

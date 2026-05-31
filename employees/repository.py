@@ -168,7 +168,7 @@ async def get_employee_departments(
     employee = (await db.scalars(
         select(Employee)
             .options(selectinload(Employee.departments))
-            .where(Employee.id == id)
+            .where(Employee.id == employee_id)
             .where(Employee.deleted_at.is_(None))
     )).one()
 
