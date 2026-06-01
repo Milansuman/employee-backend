@@ -15,6 +15,11 @@ auth_router = APIRouter(
     tags=["Authentication"]
 )
 
+# Using Cookies instead of OAuth2 under the assumption that this is an api for a web application
+# HTTP only cookies are more secure as they are inaccessible to client side js
+# While it is possible to set cookies while also using OAuth2, there is no real upside at this stage unless this api is meant to be used by third parties.
+# NB: Roles can also be handled via jwt claims
+
 @auth_router.post("/login")
 async def login(response: Response, body: LoginAttempt, db: AsyncSession = Depends(get_db)):
     tokens = await service.login(
