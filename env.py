@@ -11,4 +11,5 @@ class Env(BaseSettings):
     JWT_ALGORITHM: str
     ENVIRONMENT: str
 
+
 env = Env()  # type: ignore
