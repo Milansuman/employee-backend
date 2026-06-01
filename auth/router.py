@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Cookie
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from auth.schema import LoginAttempt
 
@@ -28,7 +28,7 @@ async def login(response: Response, body: LoginAttempt, db: AsyncSession = Depen
         value=tokens["access"],
         httponly=True,
         secure=False,
-        expires=datetime.now(timezone.utc) + timedelta(minutes=env.TOKEN_EXPIRY)
+        expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY) #Access token needs to be available in order to refresh
     )
 
     response.set_cookie(
@@ -56,7 +56,7 @@ async def refresh_access_token(response: Response, access: str | None = Cookie(d
             value=tokens["access"],
             httponly=True,
             secure=False,
-            expires=datetime.now(timezone.utc) + timedelta(minutes=env.TOKEN_EXPIRY)
+            expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY) #Access token needs to be available in order to refresh
         )
 
         response.set_cookie(
