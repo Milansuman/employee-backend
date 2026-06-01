@@ -29,7 +29,7 @@ async def get_authenticated_employee(employee: Employee = Depends(get_current_us
 @employee_router.get(
     "/all",
     response_model=list[EmployeeResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def all_employees(db: AsyncSession = Depends(get_db)):
     employees = await employee_service.get_all(db)
@@ -39,7 +39,7 @@ async def all_employees(db: AsyncSession = Depends(get_db)):
 @employee_router.post(
     "/",
     response_model=EmployeeResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_db)):
     employee = await employee_service.create(
@@ -58,7 +58,7 @@ async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_d
 @employee_router.get(
     "/search",
     response_model=list[EmployeeResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def search_employee(name: str, db: AsyncSession = Depends(get_db)):
     employees = await employee_service.search_by_name(db, name)
@@ -68,7 +68,7 @@ async def search_employee(name: str, db: AsyncSession = Depends(get_db)):
 @employee_router.get(
     "/{id}",
     response_model=EmployeeResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_employee(id: int, db: AsyncSession = Depends(get_db)):
     employee = await employee_service.get_by_id(db, id)
@@ -78,7 +78,7 @@ async def get_employee(id: int, db: AsyncSession = Depends(get_db)):
 @employee_router.patch(
     "/{id}",
     response_model=EmployeeResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def update_employee(
     id: int, body: UpdateEmployee, db: AsyncSession = Depends(get_db)
@@ -98,7 +98,7 @@ async def update_employee(
 
 
 @employee_router.delete(
-    "/{id}", dependencies=[Depends(require_roles([EmployeeRoles.HR]))]
+    "/{id}", dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))]
 )
 async def delete_employee(id: int, db: AsyncSession = Depends(get_db)):
     await employee_service.delete(db, id)
@@ -108,7 +108,7 @@ async def delete_employee(id: int, db: AsyncSession = Depends(get_db)):
 @employee_router.get(
     "/{id}/address",
     response_model=list[EmployeeAddressResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_employee_addresses(id: int, db: AsyncSession = Depends(get_db)):
     employee_addresses = await employee_service.get_addresses(db=db, employee_id=id)
@@ -119,7 +119,7 @@ async def get_employee_addresses(id: int, db: AsyncSession = Depends(get_db)):
 @employee_router.post(
     "/{id}/address",
     response_model=EmployeeAddressResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def add_employee_address(
     id: int, body: CreateEmployeeAddress, db: AsyncSession = Depends(get_db)
@@ -139,7 +139,7 @@ async def add_employee_address(
 @employee_router.patch(
     "/{employee_id}/address/{address_id}",
     response_model=EmployeeAddressResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def update_employee_address(
     employee_id: int,
@@ -161,7 +161,7 @@ async def update_employee_address(
 
 @employee_router.delete(
     "/{employee_id}/address/{address_id}",
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def delete_employee_address(
     employee_id: int, address_id: int, db: AsyncSession = Depends(get_db)
@@ -174,7 +174,7 @@ async def delete_employee_address(
 @employee_router.get(
     "/{employee_id}/department",
     response_model=list[DepartmentResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_employee_departments(
     employee_id: int, db: AsyncSession = Depends(get_db)

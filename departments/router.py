@@ -15,11 +15,10 @@ department_router = APIRouter(
     dependencies=[Depends(verify_access_token)],
 )
 
-
 @department_router.get(
     "/all",
     response_model=list[DepartmentResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_all_departments(db: AsyncSession = Depends(get_db)):
     return await service.get_all_departments(db)
@@ -28,7 +27,7 @@ async def get_all_departments(db: AsyncSession = Depends(get_db)):
 @department_router.get(
     "/search",
     response_model=list[DepartmentResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def search_department(name: str, db: AsyncSession = Depends(get_db)):
     return await service.search_department_by_name(db, name)
@@ -37,7 +36,7 @@ async def search_department(name: str, db: AsyncSession = Depends(get_db)):
 @department_router.get(
     "/{id}",
     response_model=DepartmentResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_department(id: int, db: AsyncSession = Depends(get_db)):
     return await service.get_department_by_id(db, id)
@@ -46,7 +45,7 @@ async def get_department(id: int, db: AsyncSession = Depends(get_db)):
 @department_router.post(
     "/",
     response_model=DepartmentResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def create_department(
     body: CreateOrUpdateDepartment, db: AsyncSession = Depends(get_db)
@@ -57,7 +56,7 @@ async def create_department(
 @department_router.patch(
     "/{id}",
     response_model=DepartmentResponse,
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def update_department(
     id: int, body: CreateOrUpdateDepartment, db: AsyncSession = Depends(get_db)
@@ -66,7 +65,7 @@ async def update_department(
 
 
 @department_router.delete(
-    "/{id}", dependencies=[Depends(require_roles([EmployeeRoles.HR]))]
+    "/{id}", dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))]
 )
 async def delete_department(id: int, db: AsyncSession = Depends(get_db)):
     await service.delete_department(db=db, id=id)
@@ -75,14 +74,14 @@ async def delete_department(id: int, db: AsyncSession = Depends(get_db)):
 @department_router.get(
     "/{id}/employee",
     response_model=list[EmployeeResponse],
-    dependencies=[Depends(require_roles([EmployeeRoles.HR]))],
+    dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
 async def get_department_employees(id: int, db: AsyncSession = Depends(get_db)):
     return await service.get_department_employees(db=db, id=id)
 
 
 @department_router.put(
-    "/{id}/employee", dependencies=[Depends(require_roles([EmployeeRoles.HR]))]
+    "/{id}/employee", dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))]
 )
 async def add_employee_to_department(
     id: int, employee_id: int, db: AsyncSession = Depends(get_db)
@@ -93,7 +92,7 @@ async def add_employee_to_department(
 
 
 @department_router.delete(
-    "/{id}/employee", dependencies=[Depends(require_roles([EmployeeRoles.HR]))]
+    "/{id}/employee", dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))]
 )
 async def remove_employee_from_department(
     id: int, employee_id: int, db: AsyncSession = Depends(get_db)
