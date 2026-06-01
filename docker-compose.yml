@@ -18,6 +18,28 @@ services:
     networks:
       - employee-network
 
+  backend:
+    build: .
+    container_name: employee_backend_container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    env_file:
+      .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/employee_db
+      - ENVIRONMENT=dev
+    networks:
+      - employee-network
+    develop:
+      watch:
+        - path: .
+          target: /app
+          action: sync
+        - path: uv.lock
+          action: rebuild
+
 volumes:
   postgres_data:
 

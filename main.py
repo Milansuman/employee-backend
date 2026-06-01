@@ -4,6 +4,7 @@ from exceptions import configure_error_handlers
 import logging
 import uvicorn
 from lifespan import lifespan
+from env import env
 
 from auth.router import auth_router
 from employees.router import employee_router
@@ -28,7 +29,7 @@ app.include_router(department_router)
 
 
 def main():
-    uvicorn.run(app="main:app", reload=True)
+    uvicorn.run(app="main:app", host="0.0.0.0", reload=(env.ENVIRONMENT == "dev"))
 
 
 if __name__ == "__main__":

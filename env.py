@@ -9,6 +9,6 @@ class Env(BaseSettings):
     TOKEN_EXPIRY: int  # in minutes
     REFRESH_EXPIRY: int  # in minutes
     JWT_ALGORITHM: str
-
+    ENVIRONMENT: str
 
 env = Env()  # type: ignore
