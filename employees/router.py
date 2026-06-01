@@ -8,11 +8,6 @@ from employees import service as employee_service
 
 from auth.utils import verify_access_token
 
-employee_auth_router = APIRouter(
-    prefix="/auth",
-    tags=["Employee Authentication"]
-)
-
 employee_router = APIRouter(
     prefix="/employee",
     tags=["Employee"],
