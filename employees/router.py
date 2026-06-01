@@ -6,13 +6,18 @@ from employees.schema import CreateEmployee, CreateEmployeeAddress, EmployeeAddr
 from db import get_db
 from employees import service as employee_service
 
-from auth.utils import verify_access_token
+from auth.dependencies import get_current_user_oauth
+from models.employee import Employee
 
 employee_router = APIRouter(
     prefix="/employee",
     tags=["Employee"],
-    dependencies=[Depends(verify_access_token)]
+    dependencies=[Depends(get_current_user_oauth)]
 )
+
+@employee_router.get("/me", response_model=EmployeeResponse)
+async def get_authenticated_employee(employee: Employee = Depends(get_current_user_oauth)):
+    return employee
 
 @employee_router.get("/all", response_model=list[EmployeeResponse])
 async def all_employees(db: AsyncSession = Depends(get_db)):
