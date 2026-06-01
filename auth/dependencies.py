@@ -40,10 +40,10 @@ async def get_current_user(access: str = Depends(oauth2_scheme), db: AsyncSessio
     except ExpiredSignatureError:
         raise UnauthorizedException("Token expired")
 
-def require_role(role: EmployeeRoles):
+def require_roles(roles: list[EmployeeRoles]):
 
     async def _require_role(employee:Employee = Depends(get_current_user)):
-        if employee.role != role:
+        if employee.role in roles:
             raise ForbiddenException("Access denied to role")
 
     return _require_role
