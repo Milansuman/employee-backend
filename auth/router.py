@@ -1,4 +1,3 @@
-import logging
 from fastapi import APIRouter, Depends, Cookie
 from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -10,15 +9,11 @@ from db import get_db
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-logger = logging.getLogger(__name__)
-
 @auth_router.post("/login", response_model=TokenResponse)
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
 ):
     tokens = await service.login(db=db, email=body.username, password=body.password)
-
-    logger.info(f"{body.username} logged in successfully")
 
     return {
         "token_type": "bearer",
