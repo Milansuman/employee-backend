@@ -6,25 +6,25 @@ from employees.schema import CreateEmployee, CreateEmployeeAddress, EmployeeAddr
 from db import get_db
 from employees import service as employee_service
 
-from auth.dependencies import get_current_user_oauth
-from models.employee import Employee
+from auth.dependencies import get_current_user, verify_access_token, require_role
+from models.employee import Employee, EmployeeRoles
 
 employee_router = APIRouter(
     prefix="/employee",
     tags=["Employee"],
-    dependencies=[Depends(get_current_user_oauth)]
+    dependencies=[Depends(verify_access_token)]
 )
 
 @employee_router.get("/me", response_model=EmployeeResponse)
-async def get_authenticated_employee(employee: Employee = Depends(get_current_user_oauth)):
+async def get_authenticated_employee(employee: Employee = Depends(get_current_user)):
     return employee
 
-@employee_router.get("/all", response_model=list[EmployeeResponse])
+@employee_router.get("/all", response_model=list[EmployeeResponse], dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def all_employees(db: AsyncSession = Depends(get_db)):
     employees = await employee_service.get_all(db)
     return employees
 
-@employee_router.post("/", response_model=EmployeeResponse)
+@employee_router.post("/", response_model=EmployeeResponse, dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_db)):
     employee = await employee_service.create(
         db=db,
@@ -32,22 +32,23 @@ async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_d
         email=body.email,
         phone=body.phone,
         date_of_birth=body.dob,
-        password=body.password
+        password=body.password,
+        role=body.role
     )
 
     return employee
 
-@employee_router.get("/search", response_model=list[EmployeeResponse])
+@employee_router.get("/search", response_model=list[EmployeeResponse], dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def search_employee(name: str, db: AsyncSession = Depends(get_db)):
     employees = await employee_service.search_by_name(db, name)
     return employees
 
-@employee_router.get("/{id}", response_model=EmployeeResponse)
+@employee_router.get("/{id}", response_model=EmployeeResponse, dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def get_employee(id: int, db: AsyncSession = Depends(get_db)):
     employee = await employee_service.get_by_id(db, id)
     return employee
 
-@employee_router.patch("/{id}", response_model=EmployeeResponse)
+@employee_router.patch("/{id}", response_model=EmployeeResponse, dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def update_employee(id: int, body: UpdateEmployee, db: AsyncSession = Depends(get_db)):
     employee = await employee_service.update(
         db=db,
@@ -56,19 +57,20 @@ async def update_employee(id: int, body: UpdateEmployee, db: AsyncSession = Depe
         email=body.email,
         phone=body.phone,
         date_of_birth=body.dob,
-        password=body.password
+        password=body.password,
+        role=body.role
     )
 
     return employee
 
-@employee_router.delete("/{id}")
+@employee_router.delete("/{id}", dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def delete_employee(id: int, db: AsyncSession = Depends(get_db)):
     await employee_service.delete(db, id)
     return {
         "detail": "Employee deleted"
     }
 
-@employee_router.get("/{id}/address", response_model=list[EmployeeAddressResponse])
+@employee_router.get("/{id}/address", response_model=list[EmployeeAddressResponse], dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def get_employee_addresses(id: int, db: AsyncSession = Depends(get_db)):
     employee_addresses = await employee_service.get_addresses(
         db=db,
@@ -77,7 +79,7 @@ async def get_employee_addresses(id: int, db: AsyncSession = Depends(get_db)):
 
     return employee_addresses
 
-@employee_router.post("/{id}/address", response_model=EmployeeAddressResponse)
+@employee_router.post("/{id}/address", response_model=EmployeeAddressResponse, dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def add_employee_address(id: int, body: CreateEmployeeAddress, db: AsyncSession = Depends(get_db)):
     address = await employee_service.add_address(
         db=db,
@@ -90,7 +92,7 @@ async def add_employee_address(id: int, body: CreateEmployeeAddress, db: AsyncSe
 
     return address
 
-@employee_router.patch("/{employee_id}/address/{address_id}", response_model=EmployeeAddressResponse)
+@employee_router.patch("/{employee_id}/address/{address_id}", response_model=EmployeeAddressResponse, dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def update_employee_address(employee_id: int, address_id: int, body: UpdateEmployeeAddress, db: AsyncSession = Depends(get_db)):
     address = await employee_service.update_address(
         db=db,
@@ -103,7 +105,7 @@ async def update_employee_address(employee_id: int, address_id: int, body: Updat
     )
     return address
 
-@employee_router.delete("/{employee_id}/address/{address_id}")
+@employee_router.delete("/{employee_id}/address/{address_id}", dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def delete_employee_address(employee_id: int, address_id: int, db: AsyncSession = Depends(get_db)):
     await employee_service.delete_address(
         db=db,
@@ -111,7 +113,7 @@ async def delete_employee_address(employee_id: int, address_id: int, db: AsyncSe
         address_id=address_id
     )
 
-@employee_router.get("/{employee_id}/department", response_model=list[DepartmentResponse])
+@employee_router.get("/{employee_id}/department", response_model=list[DepartmentResponse], dependencies=[Depends(require_role(EmployeeRoles.HR))])
 async def get_employee_departments(employee_id: int, db: AsyncSession = Depends(get_db)):
     return await employee_service.get_employee_departments(
         db=db,

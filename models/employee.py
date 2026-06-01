@@ -3,18 +3,24 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
-from sqlalchemy import Text, Date
+from sqlalchemy import Text, Date, Enum
 from models.entity import Entity
 from models.address import Address
 
-from env import env
-import jwt
+import enum
 
 if TYPE_CHECKING:
     from models.department import Department, employee_department
 else:
     Department = "Department"
     employee_department = "employee_department"
+
+class EmployeeRoles(enum.Enum):
+    ADMIN = "ADMIN"
+    HR = "HR"
+    ENGINEERING = "ENGINEERING"
+    C_SUITE = "C_SUITE"
+    UNASSIGNED = "UNASSIGNED"
 
 class Employee(Entity):
     __abstract__ = False
@@ -25,6 +31,7 @@ class Employee(Entity):
     email: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[EmployeeRoles] = mapped_column(Enum(EmployeeRoles), nullable=False, server_default=EmployeeRoles.UNASSIGNED.value)
     addresses: Mapped[list["Address"]] = relationship(Address, back_populates="employee")
     departments: Mapped[list["Department"]] = relationship(Department, back_populates="employees", secondary=employee_department)
 

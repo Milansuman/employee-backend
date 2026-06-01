@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from models.address import Address
 from models.department import Department
-from models.employee import Employee
+from models.employee import Employee, EmployeeRoles
 
 async def get_all_employees(db: AsyncSession):
     stmt = select(Employee).where(Employee.deleted_at.is_(None))
@@ -29,14 +29,16 @@ async def create_employee(
     phone: str,
     email: str,
     date_of_birth: date,
-    password: str
+    password: str,
+    role: EmployeeRoles
 ):
     employee = Employee(
         name=name,
         phone=phone,
         email=email,
         date_of_birth=date_of_birth,
-        password_hash=password
+        password_hash=password,
+        role=role
     )
 
     db.add(employee)
@@ -51,7 +53,8 @@ async def update_employee(
     email: str | None,
     phone: str | None,
     date_of_birth: date | None,
-    password: str | None
+    password: str | None,
+    role: EmployeeRoles | None
 ):
     employee = (await db.scalars(
         select(Employee)
@@ -64,6 +67,7 @@ async def update_employee(
     employee.phone = phone if phone is not None else employee.phone
     employee.date_of_birth = date_of_birth if date_of_birth is not None else employee.date_of_birth
     employee.password_hash = password if password else employee.password_hash
+    employee.role = role if role else employee.role
 
     db.add(employee)
     await db.commit()

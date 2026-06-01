@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
 from datetime import date
+from models.employee import EmployeeRoles
 
 def validate_date_format(date_string: str) -> str:
     try:
@@ -27,12 +28,19 @@ def validate_postal_code(postal_code: str) -> str:
 
     return postal_code
 
+def validate_role(role: str) -> str:
+    if role not in EmployeeRoles:
+        raise ValueError("Invalid role string")
+
+    return role
+
 def date_serializer(date_field: date) -> str:
     return date_field.isoformat()
 
 dobString = Annotated[str, BeforeValidator(validate_date_format)]
 phoneString = Annotated[str, BeforeValidator(validate_phone_number)]
 postalString = Annotated[str, BeforeValidator(validate_postal_code)]
+roleString = Annotated[str, BeforeValidator(validate_role)]
 serializedDateString = Annotated[date, PlainSerializer(date_serializer, return_type=str)]
 
 class CreateEmployee(BaseModel):
@@ -41,6 +49,7 @@ class CreateEmployee(BaseModel):
     phone: phoneString = Field(min_length=1)
     dob: dobString = Field(min_length=1)
     password: str = Field(min_length=5)
+    role: roleString
 
 class UpdateEmployee(BaseModel):
     name: str | None = None
@@ -48,6 +57,7 @@ class UpdateEmployee(BaseModel):
     phone: phoneString | None = None
     dob: dobString | None = None
     password: str | None = None
+    role: roleString | None = None
 
 class CreateEmployeeAddress(BaseModel):
     line1: str = Field(min_length=1)
