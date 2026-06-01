@@ -16,6 +16,23 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "aiosqlite>=0.22.1",
+    "httpx>=0.28.1",
     "poethepoet>=0.46.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.15.15",
 ]
+
+[tool.poe.tasks]
+test = "pytest"
+migrate = "alembic upgrade head"
+downgrade = "alembic downgrade -1"
+"test:cov" = "pytest --cov=, --cov-report=term-missing"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
