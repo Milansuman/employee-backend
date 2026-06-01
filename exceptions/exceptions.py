@@ -19,3 +19,6 @@ class BadRequestException(AppException):
 
 class UnauthorizedException(AppException):
     """The request is unauthorized."""
+
+class ForbiddenException(AppException):
+    """The request is forbidden."""

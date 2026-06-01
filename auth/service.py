@@ -4,7 +4,7 @@ import jwt
 from jwt.exceptions import DecodeError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import NoResultFound
-from auth.repository import get_employee_by_email
+from auth import repository
 from auth.utils import verify_password, create_jwt
 from env import env
 
@@ -16,14 +16,15 @@ async def login(
     password: str
 ) -> dict:
     try:
-        employee = await get_employee_by_email(db, email)
+        employee = await repository.get_employee_by_email(db, email)
 
         if not verify_password(password, employee.password_hash):
             raise UnauthorizedException("Incorrect password for employee")
 
         claims = {
             "id": employee.id,
-            "name": employee.name
+            "name": employee.name,
+            "email": employee.email
         }
 
         access_token = create_jwt(claims, env.JWT_SECRET, env.TOKEN_EXPIRY)

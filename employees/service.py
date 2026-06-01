@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 
 from models.department import Department
-from models.employee import Employee
+from models.employee import Employee, EmployeeRoles
 from models.address import Address
 from employees import repository
 
@@ -14,7 +14,7 @@ from exceptions import (
     ConflictException
 )
 
-async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str, password: str) -> Employee:
+async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_birth: str, password: str, role: str) -> Employee:
     try:
         employee = await repository.create_employee(
             db=db,
@@ -22,7 +22,8 @@ async def create(db: AsyncSession, name: str, email: str, phone: str, date_of_bi
             email=email,
             phone=phone,
             date_of_birth=date.fromisoformat(date_of_birth),
-            password=hash_password(password)
+            password=hash_password(password),
+            role=EmployeeRoles(role)
         )
 
         return employee
@@ -38,7 +39,7 @@ async def get_by_id(db: AsyncSession, id: int) -> Employee:
     except NoResultFound:
         raise NotFoundException("Employee does not exist")
 
-async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None, password: str | None) -> Employee:
+async def update(db: AsyncSession, id: int, name: str | None, email: str | None, phone: str | None, date_of_birth: str | None, password: str | None, role: str | None) -> Employee:
     try:
         return await repository.update_employee(
             db=db,
@@ -47,7 +48,8 @@ async def update(db: AsyncSession, id: int, name: str | None, email: str | None,
             email=email,
             phone=phone,
             date_of_birth=date.fromisoformat(date_of_birth) if date_of_birth else None,
-            password=hash_password(password) if password else None
+            password=hash_password(password) if password else None,
+            role=EmployeeRoles(role) if role else None
         )
     except IntegrityError:
         raise ConflictException("Email or phone already exists")

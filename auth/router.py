@@ -1,13 +1,10 @@
-from datetime import datetime, timedelta, timezone
-
 from fastapi import APIRouter, Depends, Cookie
 from fastapi.responses import Response
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from auth.schema import LoginAttempt
 
 from auth import service
 from db import get_db
-from env import env
 from exceptions import UnauthorizedException
 
 auth_router = APIRouter(
@@ -15,37 +12,18 @@ auth_router = APIRouter(
     tags=["Authentication"]
 )
 
-# Using Cookies instead of OAuth2 under the assumption that this is an api for a web application
-# HTTP only cookies are more secure as they are inaccessible to client side js
-# While it is possible to set cookies while also using OAuth2, there is no real upside at this stage unless this api is meant to be used by third parties.
-# NB: Roles can also be handled via jwt claims
-
 @auth_router.post("/login")
-async def login(response: Response, body: LoginAttempt, db: AsyncSession = Depends(get_db)):
+async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     tokens = await service.login(
         db=db,
-        email=body.email,
+        email=body.username,
         password=body.password
     )
 
-    response.set_cookie(
-        key="access",
-        value=tokens["access"],
-        httponly=True,
-        secure=False,
-        expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY) #Access token needs to be available in order to refresh
-    )
-
-    response.set_cookie(
-        key="refresh",
-        value=tokens["refresh"],
-        httponly=True,
-        secure=False,
-        expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY)
-    )
-
     return {
-        "detail": "success"
+        "token_type": "bearer",
+        "access_token": tokens["access"],
+        "refresh_token": tokens["refresh"]
     }
 
 @auth_router.post("/refresh")
@@ -56,24 +34,10 @@ async def refresh_access_token(response: Response, access: str | None = Cookie(d
             refresh_token=refresh
         )
 
-        response.set_cookie(
-            key="access",
-            value=tokens["access"],
-            httponly=True,
-            secure=False,
-            expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY) #Access token needs to be available in order to refresh
-        )
-
-        response.set_cookie(
-            key="refresh",
-            value=tokens["refresh"],
-            httponly=True,
-            secure=False,
-            expires=datetime.now(timezone.utc) + timedelta(minutes=env.REFRESH_EXPIRY)
-        )
-
         return {
-            "detail": "success"
+            "token_type": "bearer",
+            "access_token": tokens["access"],
+            "refresh_token": tokens["refresh"]
         }
 
     except UnauthorizedException as e:
