@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 class CreateOrUpdateDepartment(BaseModel):
-    name: str
+    name: str = Field(min_length=1)
 
 class DepartmentResponse(BaseModel):
     model_config = ConfigDict(
