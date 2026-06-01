@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base
 from models.entity import Entity, datetime_to_iso
+
 if TYPE_CHECKING:
     from models.employee import Employee
 else:
@@ -14,15 +15,18 @@ employee_department = Table(
     "employee_department",
     Base.metadata,
     Column("employee_id", ForeignKey("employee.id"), primary_key=True),
-    Column("department_id", ForeignKey("department.id"), primary_key=True)
+    Column("department_id", ForeignKey("department.id"), primary_key=True),
 )
+
 
 class Department(Entity):
     __abstract__ = False
     __tablename__ = "department"
 
     name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
-    employees: Mapped[list["Employee"]] = relationship(Employee, back_populates="departments", secondary=employee_department)
+    employees: Mapped[list["Employee"]] = relationship(
+        Employee, back_populates="departments", secondary=employee_department
+    )
 
     def to_api_dict(self) -> dict:
         return {

@@ -17,7 +17,9 @@ class Base(DeclarativeBase):
     """Base class for ORM mapped classes (entities)."""
 
 
-engine = create_async_engine(env.DATABASE_URL, echo=False, pool_size=10, max_overflow=20)
+engine = create_async_engine(
+    env.DATABASE_URL, echo=False, pool_size=10, max_overflow=20
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 

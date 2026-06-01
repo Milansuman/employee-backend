@@ -12,6 +12,7 @@ from models.employee import Employee, EmployeeRoles
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", refreshUrl="/auth/refresh")
 
+
 def verify_access_token(access: str = Depends(oauth2_scheme)):
     if not access:
         raise UnauthorizedException("Employee has not logged in")
@@ -24,7 +25,10 @@ def verify_access_token(access: str = Depends(oauth2_scheme)):
     except ExpiredSignatureError:
         raise UnauthorizedException("Token expired")
 
-async def get_current_user(access: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+
+async def get_current_user(
+    access: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
+):
     if not access:
         raise UnauthorizedException("Employee has not logged in")
 
@@ -40,9 +44,10 @@ async def get_current_user(access: str = Depends(oauth2_scheme), db: AsyncSessio
     except ExpiredSignatureError:
         raise UnauthorizedException("Token expired")
 
+
 def require_roles(roles: list[EmployeeRoles]):
 
-    async def _require_role(employee:Employee = Depends(get_current_user)):
+    async def _require_role(employee: Employee = Depends(get_current_user)):
         if employee.role in roles:
             raise ForbiddenException("Access denied to role")
 

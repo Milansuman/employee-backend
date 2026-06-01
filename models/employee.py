@@ -15,12 +15,14 @@ else:
     Department = "Department"
     employee_department = "employee_department"
 
+
 class EmployeeRoles(enum.Enum):
     ADMIN = "ADMIN"
     HR = "HR"
     ENGINEERING = "ENGINEERING"
     C_SUITE = "C_SUITE"
     UNASSIGNED = "UNASSIGNED"
+
 
 class Employee(Entity):
     __abstract__ = False
@@ -31,9 +33,17 @@ class Employee(Entity):
     email: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
-    role: Mapped[EmployeeRoles] = mapped_column(Enum(EmployeeRoles), nullable=False, server_default=EmployeeRoles.UNASSIGNED.value)
-    addresses: Mapped[list["Address"]] = relationship(Address, back_populates="employee")
-    departments: Mapped[list["Department"]] = relationship(Department, back_populates="employees", secondary=employee_department)
+    role: Mapped[EmployeeRoles] = mapped_column(
+        Enum(EmployeeRoles),
+        nullable=False,
+        server_default=EmployeeRoles.UNASSIGNED.value,
+    )
+    addresses: Mapped[list["Address"]] = relationship(
+        Address, back_populates="employee"
+    )
+    departments: Mapped[list["Department"]] = relationship(
+        Department, back_populates="employees", secondary=employee_department
+    )
 
     def to_api_dict(self) -> dict:
         return {
@@ -41,5 +51,5 @@ class Employee(Entity):
             "name": self.name,
             "email": self.email,
             "phone": self.phone,
-            "date_of_birth": self.date_of_birth.isoformat()
+            "date_of_birth": self.date_of_birth.isoformat(),
         }
