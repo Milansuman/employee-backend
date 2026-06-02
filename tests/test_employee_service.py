@@ -1,6 +1,8 @@
 import pytest
 from datetime import date
+
 from employees import service as employee_service
+from exceptions.exceptions import NotFoundException
 from models.employee import Employee, EmployeeRoles
 
 
@@ -38,3 +40,11 @@ async def test_employee_get_by_id(db_session):
     employee = await employee_service.get_by_id(db=db_session, id=seeded_employee.id)
 
     assert seeded_employee == employee
+
+
+@pytest.mark.asyncio
+async def test_employee_not_found_exception(db_session):
+    with pytest.raises(NotFoundException) as exc_info:
+        await employee_service.get_by_id(db_session, 999)
+
+    assert exc_info.value.detail == "Employee does not exist"
