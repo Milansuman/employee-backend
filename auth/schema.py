@@ -8,3 +8,8 @@ class TokenResponse(BaseModel):
     token_type: str
     access_token: str
     refresh_token: str
+
+
+class RefreshRequest(BaseModel):
+    access_token: str
+    refresh_token: str
