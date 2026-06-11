@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 import jwt
-from jwt.exceptions import DecodeError
+from jwt.exceptions import DecodeError, ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import NoResultFound
 from auth import repository
@@ -36,7 +36,10 @@ async def refresh_tokens(access_token: str | None, refresh_token: str | None):
 
     try:
         access_claims = jwt.decode(
-            access_token, env.JWT_SECRET, algorithms=[env.JWT_ALGORITHM]
+            access_token,
+            env.JWT_SECRET,
+            algorithms=[env.JWT_ALGORITHM],
+            options={"verify_exp": False},
         )
         refresh_claims = jwt.decode(
             refresh_token, env.JWT_SECRET, algorithms=[env.JWT_ALGORITHM]
@@ -48,7 +51,9 @@ async def refresh_tokens(access_token: str | None, refresh_token: str | None):
         if refresh_claims["claims"]["token"] != access_token:
             raise UnauthorizedException("Used refresh token")
 
-        new_access_token = create_jwt(access_claims, env.JWT_SECRET, env.TOKEN_EXPIRY)
+        new_access_token = create_jwt(
+            access_claims["claims"], env.JWT_SECRET, env.TOKEN_EXPIRY
+        )
         new_refresh_token = create_jwt(
             {"token": new_access_token}, env.JWT_SECRET, env.REFRESH_EXPIRY
         )
@@ -56,3 +61,6 @@ async def refresh_tokens(access_token: str | None, refresh_token: str | None):
         return {"access": new_access_token, "refresh": new_refresh_token}
     except DecodeError:
         raise UnauthorizedException("Invalid tokens")
+
+    except ExpiredSignatureError:
+        raise UnauthorizedException("Expired refres token")

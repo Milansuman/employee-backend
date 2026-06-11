@@ -24,6 +24,12 @@ class EmployeeRoles(enum.Enum):
     UNASSIGNED = "UNASSIGNED"
 
 
+class EmployeeStatus(enum.Enum):
+    ACTIVE = "ACTIVE"
+    PROBATION = "PROBATION"
+    INACTVE = "INACTIVE"
+
+
 class Employee(Entity):
     __abstract__ = False
     __tablename__ = "employee"
@@ -32,11 +38,16 @@ class Employee(Entity):
     phone: Mapped[str] = mapped_column(Text, nullable=False)
     email: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
+    joining_date: Mapped[date] = mapped_column(Date, nullable=True)
+    experience: Mapped[str] = mapped_column(Text, nullable=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     role: Mapped[EmployeeRoles] = mapped_column(
         Enum(EmployeeRoles),
         nullable=False,
         server_default=EmployeeRoles.UNASSIGNED.value,
+    )
+    status: Mapped[EmployeeStatus] = mapped_column(
+        Enum(EmployeeStatus), nullable=False, server_default=EmployeeStatus.ACTIVE.value
     )
     addresses: Mapped[list["Address"]] = relationship(
         Address, back_populates="employee"

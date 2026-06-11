@@ -2,8 +2,8 @@ import re
 from typing import Annotated
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, PlainSerializer
-from datetime import date
-from models.employee import EmployeeRoles
+from datetime import date, datetime
+from models.employee import EmployeeRoles, EmployeeStatus
 
 
 def validate_date_format(date_string: str) -> str:
@@ -39,16 +39,31 @@ def validate_role(role: str) -> str:
     return role
 
 
+def validate_status(status: str) -> str:
+    if status not in EmployeeStatus:
+        raise ValueError("Invalid status string")
+
+    return status
+
+
 def date_serializer(date_field: date) -> str:
     return date_field.isoformat()
 
 
-dobString = Annotated[str, BeforeValidator(validate_date_format)]
+def datetime_serializer(datetime_field: datetime) -> str:
+    return datetime_field.date().isoformat()
+
+
+dateString = Annotated[str, BeforeValidator(validate_date_format)]
 phoneString = Annotated[str, BeforeValidator(validate_phone_number)]
 postalString = Annotated[str, BeforeValidator(validate_postal_code)]
 roleString = Annotated[str, BeforeValidator(validate_role)]
+statusString = Annotated[str, BeforeValidator(validate_status)]
 serializedDateString = Annotated[
     date, PlainSerializer(date_serializer, return_type=str)
+]
+serializedDateTimeString = Annotated[
+    datetime, PlainSerializer(datetime_serializer, return_type=str)
 ]
 
 
@@ -58,18 +73,24 @@ class CreateEmployee(BaseModel):
         min_length=1
     )  # Email cannot be validated with regex. Must use OTP or magic link system. see https://www.regular-expressions.info/email.html
     phone: phoneString = Field(min_length=1)
-    dob: dobString = Field(min_length=1)
+    dob: dateString = Field(min_length=1)
     password: str = Field(min_length=5)
     role: roleString
+    experience: str
+    joining_date: dateString
+    status: statusString
 
 
 class UpdateEmployee(BaseModel):
     name: str | None = None
     email: str | None = None
     phone: phoneString | None = None
-    dob: dobString | None = None
+    dob: dateString | None = None
     password: str | None = None
     role: roleString | None = None
+    experience: str | None = None
+    joining_date: dateString | None = None
+    status: statusString | None = None
 
 
 class CreateEmployeeAddress(BaseModel):
@@ -93,7 +114,11 @@ class EmployeeResponse(BaseModel):
     name: str
     email: str
     phone: str
+    role: str
+    joining_date: serializedDateString | None
     date_of_birth: serializedDateString
+    status: str
+    experience: str | None
 
 
 class EmployeeAddressResponse(BaseModel):

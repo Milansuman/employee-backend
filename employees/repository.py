@@ -6,11 +6,15 @@ from sqlalchemy.orm import selectinload
 
 from models.address import Address
 from models.department import Department
-from models.employee import Employee, EmployeeRoles
+from models.employee import Employee, EmployeeRoles, EmployeeStatus
 
 
-async def get_all_employees(db: AsyncSession):
+async def get_all_employees(db: AsyncSession, status: EmployeeStatus | None):
     stmt = select(Employee).where(Employee.deleted_at.is_(None))
+
+    if status:
+        stmt = stmt.where(Employee.status == status)
+
     employees = await db.scalars(stmt)
 
     return list(employees)
@@ -36,6 +40,9 @@ async def create_employee(
     date_of_birth: date,
     password: str,
     role: EmployeeRoles,
+    experience: str,
+    joining_date: date,
+    status: EmployeeStatus,
 ):
     employee = Employee(
         name=name,
@@ -44,6 +51,9 @@ async def create_employee(
         date_of_birth=date_of_birth,
         password_hash=password,
         role=role,
+        experience=experience,
+        joining_date=joining_date,
+        status=status,
     )
 
     db.add(employee)
@@ -61,6 +71,9 @@ async def update_employee(
     date_of_birth: date | None,
     password: str | None,
     role: EmployeeRoles | None,
+    experience: str | None,
+    joining_date: date | None,
+    status: EmployeeStatus | None,
 ):
     employee = (await db.scalars(select(Employee).where(Employee.id == id))).one()
 
@@ -72,6 +85,9 @@ async def update_employee(
     )
     employee.password_hash = password if password else employee.password_hash
     employee.role = role if role else employee.role
+    employee.experience = experience if experience else employee.experience
+    employee.joining_date = joining_date if joining_date else employee.joining_date
+    employee.status = status if status else employee.status
 
     db.add(employee)
     await db.commit()

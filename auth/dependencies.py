@@ -48,7 +48,7 @@ async def get_current_user(
 def require_roles(roles: list[EmployeeRoles]):
 
     async def _require_role(employee: Employee = Depends(get_current_user)):
-        if employee.role in roles:
+        if employee.role not in roles:
             raise ForbiddenException("Access denied to role")
 
     return _require_role

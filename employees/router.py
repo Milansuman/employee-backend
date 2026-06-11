@@ -31,8 +31,8 @@ async def get_authenticated_employee(employee: Employee = Depends(get_current_us
     response_model=list[EmployeeResponse],
     dependencies=[Depends(require_roles([EmployeeRoles.HR, EmployeeRoles.ADMIN]))],
 )
-async def all_employees(db: AsyncSession = Depends(get_db)):
-    employees = await employee_service.get_all(db)
+async def all_employees(status: str | None = None, db: AsyncSession = Depends(get_db)):
+    employees = await employee_service.get_all(db, status)
     return employees
 
 
@@ -50,6 +50,9 @@ async def create_employee(body: CreateEmployee, db: AsyncSession = Depends(get_d
         date_of_birth=body.dob,
         password=body.password,
         role=body.role,
+        experience=body.experience,
+        joining_date=body.joining_date,
+        status=body.status,
     )
 
     return employee
@@ -92,6 +95,9 @@ async def update_employee(
         date_of_birth=body.dob,
         password=body.password,
         role=body.role,
+        experience=body.experience,
+        joining_date=body.joining_date,
+        status=body.status,
     )
 
     return employee
