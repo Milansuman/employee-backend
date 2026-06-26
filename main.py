@@ -10,6 +10,7 @@ from auth.router import auth_router
 from employees.router import employee_router
 from departments.router import department_router
 from documents.router import document_router
+from support_agent.router import support_agent_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,6 +29,7 @@ app.include_router(auth_router)
 app.include_router(employee_router)
 app.include_router(department_router)
 app.include_router(document_router)
+app.include_router(support_agent_router)
 
 
 def main():

@@ -5,6 +5,7 @@ class Env(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     DATABASE_URL: str
+    CHECKPOINTER_URL: str
     VECTORDB_HOST: str
     VECTORDB_PORT: int
     JWT_SECRET: str

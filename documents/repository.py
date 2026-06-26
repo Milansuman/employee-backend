@@ -26,6 +26,14 @@ async def get_document_chunks(filename: str, vec_db: AsyncCollection):
     return "\n".join([chunk for chunk in chunks["documents"][0]])
 
 
+async def query_document(
+    query_embedding: list[float], vec_db: AsyncCollection, top_k: int = 10
+):
+    chunks = await vec_db.query(query_embeddings=[query_embedding], n_results=top_k)
+
+    return chunks
+
+
 async def add_document(employee_id: int, filename: str, mime: str, db: AsyncSession):
     document = Document(filename=filename, mime=mime, employee_id=employee_id)
 

@@ -17,3 +17,9 @@ def embed_chunks(chunks: list[str]) -> list[list[float]]:
     embeddings = model.encode(chunks)
 
     return embeddings.tolist()
+
+
+def embed_string(text: str) -> list[float]:
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = model.encode([text])
+    return embeddings.tolist()[0]

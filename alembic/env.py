@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy import Connection, pool
 
 from alembic import context
-from db import Base
+from db import Base, checkpointer
 from env import env
 
 import models.employee  # noqa: F401
@@ -78,6 +78,9 @@ async def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+
+    await checkpointer.setup_checkpointer()
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

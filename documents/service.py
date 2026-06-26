@@ -18,6 +18,17 @@ async def get_documents(
         raise e
 
 
+async def query_documents(query: str, top_k: int, vec_db: AsyncCollection):
+    try:
+        chunks = await repository.query_document(
+            query_embedding=utils.embed_string(query), vec_db=vec_db, top_k=top_k
+        )
+
+        return [chunk for chunk in chunks["documents"][0]]
+    except Exception as e:
+        raise e
+
+
 async def add_document(
     employee_id: int,
     filename: str,
