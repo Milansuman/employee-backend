@@ -18,6 +18,21 @@ services:
     networks:
       - employee-network
 
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: employee_vector_db_container
+    restart: unless-stopped
+    environment:
+      IS_PERSISTENT: "true"
+      PERSIST_DIRECTORY: /chroma/chroma
+      ANONYMIZED_TELEMETRY: "false"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    ports:
+      - "5433:8000"
+    networks:
+      - employee-network
+
   backend:
     build: .
     container_name: employee_backend_container
@@ -42,6 +57,7 @@ services:
 
 volumes:
   postgres_data:
+  chromadb_data:
 
 networks:
    employee-network:

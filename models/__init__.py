@@ -1,3 +1,3 @@
-from models import employee, address, department
+from models import employee, address, department, document
 
-__all__ = ["employee", "address", "department"]
+__all__ = ["employee", "address", "department", "document"]

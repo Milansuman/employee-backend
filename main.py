@@ -9,6 +9,7 @@ from env import env
 from auth.router import auth_router
 from employees.router import employee_router
 from departments.router import department_router
+from documents.router import document_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,6 +27,7 @@ def health_check():
 app.include_router(auth_router)
 app.include_router(employee_router)
 app.include_router(department_router)
+app.include_router(document_router)
 
 
 def main():
